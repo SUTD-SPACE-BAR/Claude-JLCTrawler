@@ -1,72 +1,150 @@
 # Claude-JLCTrawler
 Claude skill for automated searching of electronics parts from JLCPCB Parts Library
 
-Current skill version: **`2026-09-29 (safety guards, v2 import)`**, set by
-`SKILL_VERSION` in `jlc-trawler/scripts/trawl.py`.
+Ask Claude Code for a part in plain English. Claude searches a local copy of
+JLCPCB's assembly catalogue and comes back with LCSC part numbers and the
+reasons for each pick.
 
-## Layout
+Current skill version: **`2026-09-29 (safety guards, v2 import)`**.
+
+## What to expect
+
+Ask in any Claude Code session, from any folder (your PCB project is the
+natural place). For example:
+
+- "find the highest capacitance polymer or electrolytic capacitor, 35V at least, which is 8x8mm or smaller. Then sort by price"
+- "smallest LDO that does 1A at 3.3V"
+- "cheapest shielded inductor rated 2A"
+- "basic-library MOSFET for a 12V load switch"
+- "polyfuse for 5V USB input, about 500mA load"
+
+For each request Claude:
+
+1. picks the right table out of 27 categories: regulators, passives, diodes,
+   MOSFETs, crystals, memory, connectors, polyfuses, battery ICs and more;
+2. checks how many parts list the specs you care about, and tells you when
+   filtering on a spec would hide parts that don't list it;
+3. searches and ranks by size, price, stock, or a balance of the three;
+4. checks live JLCPCB stock and price for the finalists.
+
+For each pick you get the LCSC number, MPN, footprint size, headroom over your
+requirement, basic or extended (extended parts carry a feeder-loading fee),
+stock, price at your quantity and the datasheet link. Claude also states the
+assumptions it made.
+
+Need a category that isn't covered? Ask Claude to "add a recipe for
+<category>" and it will extend the skill.
+
+### Example: high-capacitance 35 V capacitor
+
+From a real session on 2026-10-15. The prompt:
+
+> find the highest capacitance polymer or electrolytic capacitor, 35V at least, which is 8x8mm or smaller
+>
+> Then sort by price
+
+What Claude did:
+
+1. Checked the parts data was healthy and noted how old it was.
+2. Looked at the polymer and electrolytic tables. Voltage is listed for 98% of
+   parts, but ESR for only 52% of polymers and 18% of electrolytics, so it
+   didn't filter on ESR.
+3. Searched both tables for 35 V and up, kept SMD parts no bigger than 8 mm on
+   either side, and sorted by capacitance.
+4. Checked live stock and price for the finalists.
+
+Claude's answer (excerpt):
+
+> The highest capacitance at 35 V or more in an 8×8 mm footprint is **470 µF / 35 V**, and it's an aluminium electrolytic, not a polymer.
+>
+> | # | LCSC | MPN | Maker | Price @100 | Live stock |
+> |---|---|---|---|---|---|
+> | 1 | C48935389 | RV35V470M8X10 | jieerrui | $0.128 | 151,991 |
+> | 2 | C22383515 | GVM1V477M0810CN | ACMECON | $0.132 | 498 |
+> | 3 | C7471889 | 189RV0027 | KNSCHA | $0.149 | 4,642 |
+> | 4 | C48970923 | RYGVM35V470UF8*10 | Honor Elec | $0.184 | 230 |
+> | 5 | C18208552 | V3MCD1001V471MVTM | Ymin | $0.347 | 95 |
+> | 6 | C2164331 | EMZS350ARA471MHA0G | Nippon Chemi Con | $0.351 | 2,849 |
+>
+> All six are extended parts, so each carries JLCPCB's feeder-loading fee.
+>
+> **Best polymer: 330 µF / 35 V.** C22395182, SPT1VM331F12TRVZC (Yunxing), $0.204 at qty 100 with 852 in stock. It is Ø8 × 12 mm tall, so the footprint is 8×8 mm but it is taller than the electrolytics.
+
+It also listed its assumptions: SMD parts only, no height limit, and "8×8 mm"
+read as a can diameter of 8 mm or less.
+
+### Good to know
+
+- **The data is a snapshot.** It runs to 2026-09-14, and every answer says how
+  old it is. Stock and prices are as old as the snapshot, so Claude checks live
+  figures before a part goes on a BOM.
+- **Some specs are missing.** Not every part lists every spec. Connector
+  current ratings are the worst: LCSC mixes per-contact and whole-connector
+  figures. Claude flags these, but check the datasheet before you commit.
+- **SMT assembly parts only.** No LCSC-only or hand-solder sourcing.
+- **No KiCad files.** You get LCSC numbers and datasheet links. Import
+  symbols and footprints yourself, for example with easyeda2kicad.
+- **Claude Code only.** Regular Claude chat can't reach the database on your
+  machine.
+- **Searches are offline.** Only setting up or updating the data, and live
+  stock and price checks, use the network.
+
+## Setup
+
+You need Claude Code, Python 3 (standard library only, nothing to pip
+install), curl and about 2 GB of free disk. There are no accounts or API keys.
+
+1. **Install the skill.** From this repo's folder, link the skill into Claude
+   Code's skills folder, then start a new Claude Code session:
+   ```bash
+   ln -s "$PWD/jlc-trawler" ~/.claude/skills/jlc-trawler
+   ```
+   On Windows, copy the `jlc-trawler` folder to
+   `%USERPROFILE%\.claude\skills\jlc-trawler` instead.
+2. **Get the parts data.** Ask Claude to "set up the JLC parts database". It
+   explains the options below and asks before downloading anything. The data
+   goes in `~/jlc-trawler-data/`.
+
+### Where the parts data comes from
+
+The data is the community [jlcparts](https://github.com/yaqwsx/jlcparts)
+dataset: JLCPCB's assembly parts list with LCSC's specs, which the skill turns
+into search tables on your machine. Normally the skill downloads it from
+upstream (about 1 GB).
+
+On 2026-09-14 upstream lost about 95% of its catalogue. As of 2026-10-24 it
+hasn't recovered: [yaqwsx/jlcparts#159](https://github.com/yaqwsx/jlcparts/issues/159)
+and [yaqwsx/jlcparts#164](https://github.com/yaqwsx/jlcparts/issues/164) are
+open and the fix [yaqwsx/jlcparts#165](https://github.com/yaqwsx/jlcparts/pull/165)
+is unmerged. The skill refuses a partial download rather than use it. Until
+upstream recovers, a new user has two routes:
+
+| Route | Size | What works |
+|---|---|---|
+| Copy a teammate's search tables (`trawl.sqlite3`) | 472 MB | Every search |
+| Download upstream's last good copy (jlcparts commit `75daa67`) and import it | 681 MB download, needs 7-Zip, about 7.5 GB free while importing | Every search, plus rebuilding tables and adding new categories |
+
+Both hold data up to 2026-09-14. The `75daa67` copy could still be downloaded
+on 2026-10-24, but no branch points at it, so GitHub may delete it eventually.
+Marcus Quek keeps a copy.
+
+## For maintainers
 
 | Path | What it is |
 |---|---|
-| `jlc-trawler/` | The skill itself. This folder is what gets installed. Start with `SKILL.md`; `README.md` is the user guide, `HANDOFF.md` the design notes. |
-| `repair-2026-09-29/` | Record of the repair kit sent out after the upstream data loss: the instructions, the SHA-256 of the shared `trawl.sqlite3`, and hashes of the last good upstream cache volumes. |
+| `jlc-trawler/` | The skill itself, and the folder that gets installed. `SKILL.md` is what Claude follows. `HANDOFF.md` has the design notes and recipe history. `references/prewipe-cache-manifest.txt` has the hashes of upstream's last good cache. |
+| `repair-2026-09-29/` | The repair instructions sent to the team after the upstream data loss, and the checksum of the shared `trawl.sqlite3`. |
 
-The parts data is **not** in git. The skill reads it from `~/jlc-trawler-data/`
-(or `$TRAWL_DATA`). See `jlc-trawler/README.md` for setup.
+The parts data is never committed: it lives outside the repo and is hundreds of MB.
 
-## Installing from this repo
+**Keep the safety guards.** The pre-2026-09-29 skill overwrote good data with
+upstream's partial file. Every future version must keep these:
 
-Claude Code loads skills from `~/.claude/skills/`. To have edits tracked here,
-link the skill folder instead of copying it:
+- downloads and table rebuilds are checked before they replace anything;
+- every replacement keeps a backup that can be restored;
+- upstream's newer `source-db-v2` format is converted on import;
+- every result shows the data's date.
 
-```bash
-ln -s ~/Documents/Claude-JLCTrawler/jlc-trawler ~/.claude/skills/jlc-trawler
-```
-
-For the Claude desktop app, zip the `jlc-trawler/` folder and upload it as a
-skill. That copy doesn't update itself, so re-upload it after each change.
-
-## Upstream data loss (2026-09-14): keep the guards
-
-On 2026-09-14 the upstream dataset ([yaqwsx/jlcparts](https://github.com/yaqwsx/jlcparts))
-replaced its full catalogue with about 5% of it, in a new `source-db-v2` format.
-The old skill's `update` overwrote good local data with that partial file.
-`repair-2026-09-29/REPAIR-INSTRUCTIONS.md` has the full story.
-
-The 2026-09-29 version fixes this. Keep these protections in every future change:
-
-- `scripts/safety.py`: downloads and builds are checked before they replace
-  anything, and every replacement keeps a `.prev` backup (`trawl.py restore`).
-- `scripts/convert_v2.py`: imports upstream's `source-db-v2` format.
-- `trawl.py import`: loads the saved pre-wipe cache (`cache.zip` + `z01`–`z12`;
-  hashes in `repair-2026-09-29/prewipe-cache-manifest.txt`).
-- `data_vintage` on every search result, so stale stock is never mistaken for live.
-
-As of 2026-10-24 upstream has not recovered. Issues
-[yaqwsx/jlcparts#159](https://github.com/yaqwsx/jlcparts/issues/159) and
-[yaqwsx/jlcparts#164](https://github.com/yaqwsx/jlcparts/issues/164) are open,
-and the fix [yaqwsx/jlcparts#165](https://github.com/yaqwsx/jlcparts/pull/165)
-is unmerged. So `update` is still correctly refused.
-
-## Before committing a change
-
-```bash
-python3 jlc-trawler/scripts/units.py
-python3 jlc-trawler/scripts/packages.py
-python3 jlc-trawler/scripts/trawl.py status
-```
-
-`status` should end with `"verdict": ["OK"]`. If you changed the builder or a
-recipe, also run a build against the synthetic test DB in a scratch folder,
-never in `~/jlc-trawler-data/`:
-
-```bash
-mkdir -p /tmp/jt-test
-python3 jlc-trawler/scripts/make_test_db.py /tmp/jt-test/jlcpcb-components.sqlite3
-python3 jlc-trawler/scripts/trawl.py --dir /tmp/jt-test build
-```
-
-The synthetic DB has only 5 categories, so most recipes warn that they matched
-zero categories. That's expected; the build should end with `Build complete: 27 recipe(s)`.
-
-Bump `SKILL_VERSION` in `trawl.py` when behaviour changes.
+Before committing a change, ask Claude to run the self-tests, the health check
+and a test build against the synthetic database. HANDOFF.md covers these.
+Bump `SKILL_VERSION` in `jlc-trawler/scripts/trawl.py` when behaviour changes.

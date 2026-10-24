@@ -25,13 +25,14 @@ source download) and `trawl.sqlite3` (derived typed tables).
 
 **Never guess column names or plausible value ranges. Introspect first.**
 
-1. **Pick the recipe table.** Current recipes: `ldo`, `dcdc`,
+1. **Pick the recipe table.** Current recipes (27): `ldo`, `dcdc`,
    `inductor_power`, `ferrite_bead`, `mlcc`, `resistor_chip`, `mosfet`,
-   `diode_schottky`, `diode_zener`, `diode_rectifier`, `tvs`, `led`,
-   `crystal`, `cap_polymer`, `cap_tantalum`, `cap_electrolytic`,
-   `cap_film`, `cap_safety`, `supervisor_reset`, `vref`, `power_switch`,
-   `memory`. If unsure which categories exist or a recipe is missing,
-   run `categories --grep <term>`.
+   `diode_schottky`, `diode_zener`, `diode_rectifier`, `tvs`,
+   `fuse_resettable`, `led`, `crystal`, `cap_polymer`, `cap_tantalum`,
+   `cap_electrolytic`, `cap_film`, `cap_safety`, `supervisor_reset`,
+   `vref`, `power_switch`, `battery_mgmt`, `memory`, `conn_wire_board`,
+   `conn_ffc_fpc`, `conn_stack`. If unsure which categories exist or a
+   recipe is missing, run `categories --grep <term>`.
    Routing notes:
    - Diodes: Schottky → `diode_schottky`; zener → `diode_zener`;
      everything else (general purpose, switching/1N4148, fast recovery,
@@ -62,10 +63,25 @@ source download) and `trawl.sqlite3` (derived typed tables).
      mislabel 1.25mm families — GH vs PicoBlade don't intermate, confirm
      latch style in the datasheet). Flat-flex → `conn_ffc_fpc` (`pitch_mm`,
      `n_contacts`, `contact_type ~ bottom/top`, `height_mm`, `locking`).
+     Board stacking (board-to-board, mezzanine, backplane, card-edge,
+     pogo pins, pin/female headers, blade contacts) → `conn_stack`
+     (`current_a`, `pitch_mm`, `n_pins`, `n_rows`, `fit_height_mm` = mated
+     stack height but only 7% coverage, `body_height_mm`, `conn_type`,
+     `smd`). It was built to find the highest-current stacking path.
+     CAUTION: LCSC mixes per-contact and whole-connector ratings in
+     `current_a`, and the top of a current sort is where the wrong ones
+     are (a 10A listing turned out to be 0.5A × 20 contacts). Never quote
+     a `current_a` figure without opening the datasheet. For ordinary
+     signal board-to-board the user's default is Hirose BM24; offer
+     `conn_stack` results as alternatives, not replacements.
      `--rank smallest` is BLIND for connectors (no package dims) — rank by
-     price/stock and constrain via the mm columns instead. No board-to-
-     board/mezzanine or USB recipes BY DESIGN: the user standardizes on
-     Hirose BM24-24 for board-to-board and has settled USB picks.
+     price/stock and constrain via the mm columns instead. No USB
+     connector recipe BY DESIGN: the user has settled USB picks.
+   - Resettable PTC fuses (polyfuses) → `fuse_resettable`
+     (`hold_current_a`, `trip_current_a`, `voltage_v`, `current_max_a`,
+     `trip_time_s`, `r_initial_ohm`; all ≥94% coverage). Size by hold
+     current with margin over the normal load, and check `voltage_v`
+     covers the rail.
    - eFuses / load switches / current-limit switches → `power_switch`
      (that's where integrated eFuse ICs live; the "SPD" category is ~27
      lightning-arrester-style parts, not eFuses).
@@ -146,6 +162,37 @@ returns only *explicitly* unshielded parts, not the unknowns. If the user
 needs strictly fully-shielded, filter then check each candidate's
 description/datasheet.
 
+## First-time setup (no parts data yet)
+
+If `status` shows no `derived_db`, the user has no data yet and every
+search will fail. Explain the options below and **ask before downloading
+anything**. Keep downloads outside the skill folder.
+
+1. **Shared tables (quickest).** If a teammate can send their
+   `trawl.sqlite3` (472 MB), copy it into the data dir. The 2026-09-29
+   team build has sha256
+   `8bd28675190e52cbaeb68a0cb7e4b807c699bd1227f33bb71405b7324ac72c89`.
+   All searches work. Only `build` and new recipes need option 2.
+2. **Full data from the last good upstream cache.** 681 MB download.
+   Needs 7-Zip (`brew install sevenzip` on macOS, 7-zip.org on Windows,
+   `7zip`/`p7zip-full` on Linux), ~7.5 GB free during import and
+   ~1.3 GB after. Download `cache.zip` and `cache.z01` … `cache.z12` into
+   one folder from
+   `https://raw.githubusercontent.com/yaqwsx/jlcparts/75daa67a78f3acf4ce18bab8dd68a86ac28c2818/data/<file>`.
+   Check every file's sha256 against
+   `references/prewipe-cache-manifest.txt` and stop on any mismatch.
+   Then run `import <folder>/cache.zip`, which takes 1–2 minutes. No
+   branch points at that commit, so GitHub may delete it eventually. It
+   was still downloadable on 2026-10-24. If it's gone, the skill's
+   maintainer (Marcus Quek) keeps a copy.
+3. **`update`** is the normal route once upstream has a complete
+   catalogue again (see upstream status below). Until then the guards
+   reject the download and nothing changes, so trying it is harmless.
+
+Afterwards `status` should end with `"verdict": ["OK"]`. Tell the user
+how old the data is (`data_vintage`), since the stock and prices in it
+are as old as that.
+
 ## Database maintenance (run when the user asks, or data feels stale)
 
 ```bash
@@ -178,12 +225,16 @@ Upstream's 2026 cache format (`meta.format = source-db-v2`) is converted
 to the classic schema automatically by `update` and `import`
 (`scripts/convert_v2.py`), so the builder and recipes are unchanged.
 
-**Upstream status (2026-09):** yaqwsx/jlcparts lost its full catalogue on
-2026-09-14 and republished a partial set, so `update` currently gets
-rejected for having too few parts. The last good upstream cache (data to
-2026-09-14 09:18, 13 volumes, 681 MB) was saved from commit `75daa67` of
-yaqwsx/jlcparts and verified byte-identical to it; load it with `import`. Don't rerun it expecting a different result; the
-existing tables keep working. Without a usable source DB, `categories`
+**Upstream status (checked 2026-10-24):** yaqwsx/jlcparts lost its full
+catalogue on 2026-09-14 and has only republished a partial set (its
+`cache.zip` is now ~14.5 MB). Issues #159 and #164 are open and the fix,
+PR #165, is unmerged. CDFER's file has grown from ~33 MB right after the
+wipe to ~390 MB, but it hasn't been tried against the guards. If the user
+asks to update, run `update` and report what the guard says. The last good
+upstream cache (data to 2026-09-14 09:18, 13 volumes, 681 MB) was saved
+from commit `75daa67` of yaqwsx/jlcparts and verified byte-identical to
+it; load it with `import` (see First-time setup). The existing tables keep
+working either way. Without a usable source DB, `categories`
 and `raw-attrs` fall back to the derived tables (recipe-covered
 categories only), so `build` and new recipes are the only things blocked.
 
