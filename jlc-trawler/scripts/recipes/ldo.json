@@ -1,0 +1,36 @@
+{
+  "name": "ldo",
+  "display": "LDO linear voltage regulators",
+  "category_match": {
+    "category": "Power Management",
+    "subcategory": "Linear Voltage Regulators|LDO|Low Dropout|Dropout Regulators"
+  },
+  "columns": [
+    {"name": "output_current_a", "parse": "current", "range": "max",
+     "attrs": ["Output Current", "Output Current (Max)", "Output Current(Max)",
+               "Output Current (Maximum Value)", "Current - Output", "Current Output"]},
+    {"name": "vout_v", "parse": "voltage", "range": "both",
+     "attrs": ["Output Voltage", "Voltage - Output", "Voltage Output",
+               "Output Voltage (Max)", "Fixed Output Voltage"]},
+    {"name": "vin_v", "parse": "voltage", "range": "both",
+     "attrs": ["Input Voltage", "Voltage - Input", "Maximum Input Voltage",
+               "Voltage Input", "Input Voltage Range", "Vin"]},
+    {"name": "dropout_v", "parse": "voltage", "range": "max",
+     "attrs": ["Dropout Voltage", "Dropout Voltage (Max)", "Voltage Dropout",
+               "Voltage - Dropout", "Dropout Voltage(Vdo)"]},
+
+    "__comment_iq__: LDO quiescent current appears under many LCSC spellings.",
+    "  List the explicit real variants so the exact-match pass catches them",
+    "  regardless of substring subtleties; broadest 'Quiescent Current' last.",
+    {"name": "iq_a", "parse": "current", "range": "max",
+     "attrs": ["Quiescent Current (Iq)", "Quiescent Current(Iq)", "Quiescent Current (Ground Current)",
+               "Quiescent Supply Current", "Supply Current (Iq)", "Supply Current (Max)",
+               "Supply Current(Max)", "Standby Current", "Ground Current",
+               "Quiescent Current", "Supply Current", "Current - Quiescent"]},
+
+    {"name": "output_type", "parse": "text",
+     "attrs": ["Output Type", "Type"]},
+    {"name": "n_outputs", "parse": "number", "range": "max",
+     "attrs": ["Number of Outputs", "Outputs"]}
+  ]
+}

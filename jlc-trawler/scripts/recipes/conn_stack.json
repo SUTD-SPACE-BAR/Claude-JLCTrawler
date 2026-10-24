@@ -1,0 +1,76 @@
+{
+  "name": "conn_stack",
+  "display": "Board-stacking interconnects (board-to-board, mezzanine, card-edge, pogo pin, headers, blade contacts)",
+
+  "__comment_why__": "Added 2026-08-23. The existing conn_wire_board recipe covers only harness (wire-to-board) parts, and board-to-board was deliberately skipped when Marcus standardized on Hirose BM24. This recipe exists for the opposite problem: finding the HIGHEST-current stacking interconnect available, signals irrelevant. It therefore sweeps every family that can physically join two parallel PCBs and carry power: mezzanine/board-to-board, backplane, card-edge/edgeboard, pogo-pin spring probes, plain pin/female headers (a 2.54mm header stack is a legitimate power path), blade/shrapnel spring contacts, Micro-Match, and PCB welding terminals. Current coverage is patchy in the mezzanine/pogo buckets (~10-40%) and good in the header buckets (~50-60%) - a current filter silently drops every part that never published a rating, so always cross-check the raw attrs and the datasheet on finalists.",
+
+  "category_match": {
+    "category": "Connectors",
+    "subcategory": "Board-To-Board|Backplane|Mezzanine|Edgeboard|Card Edge|Pogo Pin|Pin Header|Female Header|Blade / Shrapnel|Micro-Match|PCB Welding Terminal"
+  },
+
+  "columns": [
+    "__comment_current__: THE column this recipe exists for. '(Max)' alias must come",
+    "  first: the bare 'Current Rating' alias substring-matches 'Current Rating (Max)'",
+    "  and would shadow it.",
+    "__comment_current_trap__: LCSC CONFLATES per-contact and whole-connector ratings",
+    "  in this one field, and the high end of the sort order is where the fakes live.",
+    "  Verified against datasheets 2026-08-23:",
+    "    Panasonic AXK5S20347YG  listed 10A   = 0.5A/contact x 20 contacts (TOTAL)",
+    "    TE 2-5767004-2 (MICTOR) listed 11.5A = a signal connector's TOTAL, not power",
+    "    Molex 757571401         listed 17A   = MX150, a sealed WIRE-to-board part",
+    "    TE 2204585-4 (ELCON Mini) 35A/contact but CABLE-to-board, no board-mating half",
+    "  Real per-contact winners that survived: Hirose BM50 15A, Amphenol PowerStak 20A.",
+    "  NEVER quote a number out of this column without opening the PDF.",
+    "__comment_current_desc__: from_description is ON because whole vendor families",
+    "  (notably the Xinyangze pogo pins, where the 10A parts live) publish EMPTY",
+    "  attribute dicts and state the rating only in the description string. Verified",
+    "  2026-08-23: the fallback adds ~2600 parts and the current parser only fires on",
+    "  <number>A tokens, so temperature/pitch/voltage fields in those descriptions do",
+    "  not pollute it. Cross-check any description-sourced number against the PDF.",
+    {"name": "current_a", "parse": "current", "range": "max", "from_description": true,
+     "attrs": ["Current Rating (Max)", "Rated Current", "Current Rating", "Current"]},
+
+    {"name": "voltage_v", "parse": "voltage", "range": "max",
+     "attrs": ["Voltage Rating (Max)", "Rated Voltage", "Voltage Rating"]},
+
+    {"name": "pitch_mm", "parse": "number", "range": "max",
+     "attrs": ["Pitch"]},
+
+    {"name": "n_pins", "parse": "number", "range": "max",
+     "attrs": ["Number of Pins", "Number of PINs"]},
+    {"name": "n_rows", "parse": "number", "range": "max",
+     "attrs": ["Number of Rows"]},
+    {"name": "pins_structure", "parse": "text",
+     "attrs": ["Pin Structure", "Pins Structure"]},
+
+    "__comment_height__: the mated stack gap. Different families name it differently;",
+    "  'System Fit Height' (mezzanine) and 'Operational Height' (pogo) are the mated",
+    "  numbers, 'Height Above Board' / 'Body Height' are unmated single-part heights.",
+    {"name": "fit_height_mm", "parse": "number", "range": "max",
+     "attrs": ["System Fit Height", "Operational Height", "Working Height"]},
+    {"name": "body_height_mm", "parse": "number", "range": "max",
+     "attrs": ["Height Above Board", "Body Height", "Overall Length/Height", "Insulation Height"]},
+
+    {"name": "contact_r_ohm", "parse": "resistance", "range": "max",
+     "attrs": ["Contact Resistance"]},
+
+    {"name": "contact_plating", "parse": "text",
+     "attrs": ["Contact Plating"]},
+    {"name": "contact_material", "parse": "text",
+     "attrs": ["Contact Material"]},
+    {"name": "gender", "parse": "text",
+     "attrs": ["Gender"]},
+    {"name": "conn_type", "parse": "text",
+     "attrs": ["Connector Type", "Connect Type", "Connection Type", "Type"]},
+
+    "__comment_smd__: same LCSC vocabulary as conn_wire_board - 'Standing/Sinking",
+    "  paste' and 'Vertical welding' are SMD, 'Plugin'/'Direct Insert' are THT.",
+    "  Ternary: silence stays NULL rather than asserting THT.",
+    {"name": "smd",
+     "flag": ["\\bSMD\\b", "\\bSMT\\b", "Surface[- ]?Mount", "paste", "welding", "贴片"],
+     "flag_false": ["Through[- ]?Hole", "Direct Insert", "插件", "\\bPlugin\\b", "\\bDIP\\b", "\\bTHT\\b"],
+     "from_description": true,
+     "attrs": ["Mounting Type", "Mounting Style", "mounting type"]}
+  ]
+}

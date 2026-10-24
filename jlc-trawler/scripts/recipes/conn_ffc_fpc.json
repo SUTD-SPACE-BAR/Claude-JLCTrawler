@@ -1,0 +1,41 @@
+{
+  "name": "conn_ffc_fpc",
+  "display": "FFC/FPC connectors (flat-flex, board side)",
+
+  "__comment_why__": "Added 2026-07-07 — the best-parameterized connector bucket in the catalogue (~80% coverage on every load-bearing spec). Regex matches the two CONNECTOR buckets but not 'FFC Cable (Flexible Flat Cable)' / 'FFC/FPC Connect Cables' (those are the cables themselves — order them to match pitch/contacts/orientation found here). mm dimensions stored as plain numbers via the number parser.",
+  "category_match": {
+    "category": "Connectors",
+    "subcategory": "FFC/FPC Connectors|FFC, FPC"
+  },
+  "columns": [
+    {"name": "pitch_mm", "parse": "number", "range": "max",
+     "attrs": ["Pitch"]},
+    {"name": "n_contacts", "parse": "number", "range": "max",
+     "attrs": ["Number of Contacts", "Number of Pins"]},
+
+    "__comment_height__: mated height above board — the constraint under displays",
+    "  and in stacked assemblies. '2mm' → 2.",
+    {"name": "height_mm", "parse": "number", "range": "max",
+     "attrs": ["Height Above Board"]},
+
+    "__comment_contact__: 'Bottom Contact' / 'Top Contact' / dual — determines which",
+    "  side of the FPC the conductors face; getting this wrong flips the cable.",
+    {"name": "contact_type", "parse": "text",
+     "attrs": ["Contact Type"]},
+
+    "__comment_locking__: 'Clamshell' (flip actuator) / slide / push-pull etc.",
+    {"name": "locking", "parse": "text",
+     "attrs": ["Locking Feature", "Locking"]},
+
+    "__comment_thickness__: 'FFC, FCB Thickness' (sic, real LCSC key) — the cable",
+    "  thickness the connector accepts, almost always 0.3mm.",
+    {"name": "cable_thickness_mm", "parse": "number", "range": "max",
+     "attrs": ["FFC, FCB Thickness", "FFC Thickness", "Cable Thickness"]},
+
+    {"name": "smd",
+     "flag": ["\\bSMD\\b", "\\bSMT\\b", "Surface[- ]?Mount", "paste", "贴片"],
+     "flag_false": ["Through[- ]?Hole", "Direct Insert", "插件", "\\bPlugin\\b", "\\bDIP\\b", "\\bTHT\\b"],
+     "from_description": true,
+     "attrs": ["Mounting Type", "Mounting Style", "mounting type"]}
+  ]
+}

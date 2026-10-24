@@ -1,0 +1,48 @@
+{
+  "name": "conn_wire_board",
+  "display": "Wire-to-board connectors (JST XH/PH/GH etc., board-side headers)",
+
+  "__comment_why__": "Added 2026-07-07 for cable-harness work. Subcategory regex is ANCHORED (^Wire To Board) so the separate 'Housings (Wire To Board / Wire To Wire )' bucket — crimp housings, the cable side — can't leak in. Board-to-board/mezzanine deliberately has NO recipe: Marcus standardizes on the Hirose BM24 family. Length-ish columns (pitch) are stored as plain mm via the number parser — LCSC writes them uniformly in mm.",
+  "category_match": {
+    "category": "Connectors",
+    "subcategory": "^Wire To Board"
+  },
+  "columns": [
+    {"name": "pitch_mm", "parse": "number", "range": "max",
+     "attrs": ["Pitch"]},
+
+    "__comment_series__: 'Reference Series' ('XH', 'PH', 'GH', 'SH', 'ZH'…) — the",
+    "  most useful filter for harness work: --where \"series ~ GH\". CAUTION verified",
+    "  2026-07-07: clone vendors mislabel 1.25mm families — a part tagged series=GH",
+    "  had 'PicoBlade(MX 1.25)' in its description, and GH vs PicoBlade do NOT",
+    "  intermate (GH latches). Treat series as a shortlist filter and confirm the",
+    "  latch style in the datasheet/description before ordering.",
+    {"name": "series", "parse": "text",
+     "attrs": ["Reference Series", "Series"]},
+
+    "__comment_pins__: three complementary views of the same fact, because the data",
+    "  is inconsistent: numeric rows x per-row when present, plus the '1x4P'",
+    "  structure string as the reliable text fallback. Value-shift noise exists in",
+    "  this bucket (e.g. a mount style sitting in a rows field) — the number parser",
+    "  just NULLs those out rather than storing junk.",
+    {"name": "n_rows", "parse": "number", "range": "max",
+     "attrs": ["Number of Rows"]},
+    {"name": "pins_per_row", "parse": "number", "range": "max",
+     "attrs": ["Number of PINs Per Row"]},
+    {"name": "pins_structure", "parse": "text",
+     "attrs": ["Pins Structure", "Pin Structure", "Holes Structure"]},
+
+    {"name": "current_a", "parse": "current", "range": "max",
+     "attrs": ["Current Rating (Max)", "Current Rating", "Rated Current"]},
+    {"name": "gender", "parse": "text",
+     "attrs": ["Gender"]},
+
+    "__comment_smd__: 'Standing paste'/'Sinking paste' are LCSC's words for SMD",
+    "  variants; 'Direct Insert'/'Plugin' are THT. Ternary as usual.",
+    {"name": "smd",
+     "flag": ["\\bSMD\\b", "\\bSMT\\b", "Surface[- ]?Mount", "paste", "贴片"],
+     "flag_false": ["Through[- ]?Hole", "Direct Insert", "插件", "\\bPlugin\\b", "\\bDIP\\b", "\\bTHT\\b"],
+     "from_description": true,
+     "attrs": ["Mounting Type", "Mounting Style", "mounting type"]}
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "name": "crystal",
+  "display": "SMD crystals (passive quartz resonators, SMT only)",
+  "category_match": {
+    "category": "Crystals|Oscillators|Resonators",
+    "subcategory": "SMD Crystal Resonators|SMD Crystal|Surface Mount Crystal|^Crystals$"
+  },
+  "columns": [
+    {"name": "frequency_hz", "parse": "frequency", "range": "max",
+     "attrs": ["Frequency", "Nominal Frequency", "Frequency (Fo)"]},
+    "__comment_load_cap__: 'Load Capacitor' (no trailing 'ance') substring-matches the",
+    "  real 75-per-500 key 'External load capacitor' too. 'Built - in Load Capacitance'",
+    "  is verbatim from the data, spaces around the hyphen and all.",
+    {"name": "load_cap_f", "parse": "capacitance", "range": "max",
+     "attrs": ["Load Capacitance", "Load Capacitance (CL)", "Load Capacitors", "CL",
+               "Load Capacitor", "Built - in Load Capacitance"]},
+
+    "__comment_ppm__: crystal frequency tolerance & stability are specified in ppm,",
+    "  not percent. The units parser's 'percent' kind now understands ppm (÷1e6) and",
+    "  normalizes both to a dimensionless fraction, so these columns finally populate.",
+    {"name": "tolerance_frac", "parse": "percent", "range": "max",
+     "attrs": ["Frequency Tolerance", "Normal Temperature Frequency Tolerance",
+               "Frequency Tolerance (25℃)", "Tolerance"]},
+    {"name": "stability_frac", "parse": "percent", "range": "max",
+     "attrs": ["Frequency Stability", "Temperature Stability",
+               "Frequency Stability(Full Temperature Range)", "Frequency Stability (Full Temperature Range)",
+               "Stability"]},
+
+    {"name": "esr_ohm", "parse": "resistance", "range": "max",
+     "attrs": ["ESR", "Equivalent Series Resistance", "Equivalent Series Resistance (ESR)",
+               "Resistance - ESR"]}
+  ]
+}

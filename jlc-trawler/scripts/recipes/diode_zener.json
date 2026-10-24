@@ -1,0 +1,34 @@
+{
+  "name": "diode_zener",
+  "display": "Zener diodes",
+
+  "__comment_why__": "Added 2026-07-07 — largest previously-uncovered category (11k in-stock parts). Aliases verified against raw-attrs; the no-space variants ('Zener Voltage(Nom)') are real LCSC keys, not typos.",
+  "category_match": {
+    "category": "Diodes",
+    "subcategory": "Zener Diodes"
+  },
+  "columns": [
+    "__comment_vz__: nominal zener voltage. Prefer range filters over exact '='",
+    "  ('vz_v >= 5 AND vz_v <= 5.2' style) — nominal values vary (5.1 vs 5.2).",
+    {"name": "vz_v", "parse": "voltage", "range": "max",
+     "attrs": ["Zener Voltage (Nom)", "Zener Voltage(Nom)", "Zener Voltage"]},
+
+    "__comment_vz_range__: the guaranteed min/max window ('4.8V~5.4V') — useful",
+    "  when the clamp level genuinely matters (both bounds become columns).",
+    {"name": "vz_window_v", "parse": "voltage", "range": "both",
+     "attrs": ["Zener Voltage (Range)", "Zener Voltage(Range)"]},
+
+    {"name": "power_w", "parse": "power", "range": "max",
+     "attrs": ["Power Dissipation", "Pd - Power Dissipation"]},
+    {"name": "zzt_ohm", "parse": "resistance", "range": "max",
+     "attrs": ["Zener Impedance (Zzt)", "Impedance(Zzt)", "Zener Impedance"]},
+
+    "__comment_ir__: leakage below the knee, values like '2uA@1.5V' (condition",
+    "  voltage dropped by the parser — check datasheet when leakage is critical).",
+    {"name": "ir_a", "parse": "current", "range": "max",
+     "attrs": ["Reverse Leakage Current (Ir)", "Reverse Leakage Current"]},
+
+    {"name": "config", "parse": "text",
+     "attrs": ["Diode Configuration"]}
+  ]
+}

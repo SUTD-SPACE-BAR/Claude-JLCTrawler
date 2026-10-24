@@ -1,0 +1,42 @@
+{
+  "name": "vref",
+  "display": "Voltage references (series + shunt)",
+
+  "__comment_why__": "Added 2026-07-07 (PMIC expansion). 'Voltage References?' matches both the plural buckets and PMIC's singular 'Voltage Reference' ≈ 2.1k in-stock parts (TL431 country). Aliases verified against raw-attrs.",
+  "category_match": {
+    "category": "Power",
+    "subcategory": "Voltage References?"
+  },
+  "columns": [
+    "__comment_vout__: adjustable shunts publish a range ('2.5V~36V') → both bounds;",
+    "  fixed refs give a single value (min = max).",
+    {"name": "vout_v", "parse": "voltage", "range": "both",
+     "attrs": ["Output Voltage", "Reference Voltage", "Voltage - Output"]},
+
+    "__comment_accuracy__: initial accuracy, stored as a fraction (±0.4% → 0.004).",
+    {"name": "tolerance_frac", "parse": "percent", "range": "max",
+     "attrs": ["Tolerance", "Initial Accuracy", "Accuracy"]},
+
+    "__comment_tempco__: '20ppm/℃' → 2e-05 (dimensionless fraction per ℃; the",
+    "  percent kind understands ppm). Filter e.g. tempco_frac <= 50ppm as 5e-05.",
+    {"name": "tempco_frac", "parse": "percent", "range": "max",
+     "attrs": ["Temperature Coefficient", "Tempco", "Temperature Drift"]},
+
+    "__comment_type__: 'Parallel' = shunt (TL431-style, needs bias resistor),",
+    "  'Serial'/'Series' = three-terminal series reference.",
+    {"name": "ref_type", "parse": "text",
+     "attrs": ["Reference Type", "Topology"]},
+    {"name": "output_type", "parse": "text",
+     "attrs": ["Output Type"]},
+
+    {"name": "iout_a", "parse": "current", "range": "max",
+     "attrs": ["Output Current", "Current - Output"]},
+    {"name": "vin_max_v", "parse": "voltage", "range": "max",
+     "attrs": ["Input Voltage", "Maximum Input Voltage", "Voltage - Supply"]},
+
+    "__comment_ikmin__: shunt-only spec — minimum cathode current for regulation",
+    "  ('1mA' for a TL431): sets the bias-resistor budget. NULL for series refs.",
+    {"name": "cathode_current_min_a", "parse": "current", "range": "max",
+     "attrs": ["Minimum Cathode Current for Regulation", "Minimum Cathode Current"]}
+  ]
+}

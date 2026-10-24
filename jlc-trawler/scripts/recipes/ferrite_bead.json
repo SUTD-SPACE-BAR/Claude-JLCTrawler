@@ -1,0 +1,28 @@
+{
+  "name": "ferrite_bead",
+  "display": "Ferrite beads (power-rail / EMI filtering)",
+
+  "__comment_why__": "Added 2026-07-07 (power-electronics expansion): rail filtering between converter stages. Buckets: three 'Ferrite Beads' namings ≈ 3.3k parts. Attribute coverage in the sample was excellent (90%+ on all four key specs).",
+  "category_match": {
+    "subcategory": "Ferrite Beads"
+  },
+  "columns": [
+    "__comment_z__: 'Impedance @ Frequency' ('120Ω@100MHz') — the @100MHz condition",
+    "  is dropped by the parser and is the near-universal spec point for beads, so",
+    "  treat z_ohm as Z@100MHz. Spot-check the raw string if a value looks odd.",
+    {"name": "z_ohm", "parse": "resistance", "range": "max",
+     "attrs": ["Impedance @ Frequency", "Impedance@Frequency", "Impedance"]},
+
+    "__comment_dcr__: the bead's series DC resistance — THE hidden spec for power",
+    "  rails (IR drop under load). 457/500 populated.",
+    {"name": "dcr_ohm", "parse": "resistance", "range": "max",
+     "attrs": ["DC Resistance", "DC Resistance(DCR)", "DCR", "Resistance - DCR"]},
+
+    {"name": "rated_current_a", "parse": "current", "range": "max",
+     "attrs": ["Current Rating", "Rated Current", "Current - Rated"]},
+    {"name": "tolerance_frac", "parse": "percent", "range": "max",
+     "attrs": ["Tolerance"]},
+    {"name": "n_circuits", "parse": "number", "range": "max",
+     "attrs": ["Circuits", "Number of Circuits"]}
+  ]
+}

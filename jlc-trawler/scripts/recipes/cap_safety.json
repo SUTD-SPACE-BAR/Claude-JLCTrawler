@@ -1,0 +1,39 @@
+{
+  "name": "cap_safety",
+  "display": "Safety-rated capacitors (X1/X2/Y1/Y2, mains EMI filtering)",
+
+  "__comment_why__": "Added 2026-07-07 (power-electronics expansion): X/Y caps for mains input filters. Buckets: 'Safety Capacitors' (~0.5k) + 'Suppression Capacitors' (~1.9k). The load-bearing columns are subclass (X2/Y1/Y2…) and the AC voltage rating — both verified well-populated (342 and 345 of 500 sampled).",
+  "category_match": {
+    "category": "Capacitors",
+    "subcategory": "Safety Capacitors|Suppression Capacitors"
+  },
+  "columns": [
+    {"name": "capacitance_f", "parse": "capacitance", "range": "max",
+     "attrs": ["Capacitance"]},
+
+    "__comment_vac__: 'Voltage(AC)' is the mains rating ('275V' for X2, '500V' for",
+    "  Y1) — the spec that matters for line filtering. 'Voltage Rated' (DC, rare",
+    "  here) is a separate column so the two never get conflated.",
+    {"name": "voltage_ac_v", "parse": "voltage", "range": "max",
+     "attrs": ["Voltage(AC)", "Voltage (AC)", "AC Voltage", "Rated AC Voltage"]},
+    {"name": "voltage_dc_v", "parse": "voltage", "range": "max",
+     "attrs": ["Voltage Rated", "Voltage Rating", "Rated Voltage"]},
+
+    "__comment_subclass__: 'X2'/'Y1'/'Y2'/'X1Y2' etc. Filter --where \"subclass ~ Y2\".",
+    {"name": "subclass", "parse": "text",
+     "attrs": ["Subclass", "Ratings", "Safety Class"]},
+
+    "__comment_certs__: 'VDE;CQC;UL;CSA;ENEC' — text-search for a required mark.",
+    {"name": "certifications", "parse": "text",
+     "attrs": ["safety certification", "Safety Certification", "Certifications"]},
+
+    {"name": "tolerance_frac", "parse": "percent", "range": "max",
+     "attrs": ["Tolerance", "Capacitance Tolerance"]},
+
+    {"name": "smd",
+     "flag": ["\\bSMD\\b", "\\bSMT\\b", "Surface[- ]?Mount", "贴片"],
+     "flag_false": ["插件", "\\bPlugin\\b", "Plug[- ]?in", "\\bDIP\\b", "Through[- ]?Hole", "\\bTHT\\b", "Radial"],
+     "from_description": true,
+     "attrs": ["Mounting Type", "mounting type", "Mounting Style"]}
+  ]
+}

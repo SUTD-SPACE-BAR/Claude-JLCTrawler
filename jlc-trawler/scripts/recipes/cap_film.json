@@ -1,0 +1,31 @@
+{
+  "name": "cap_film",
+  "display": "Film capacitors (polyester + polypropylene/CBB)",
+
+  "__comment_why__": "Added 2026-07-07 (power-electronics expansion): snubbers, DC-link, resonant tanks. Buckets: 'Film Capacitors' (~1.6k) + 'Polypropylene Film Capacitors (CBB)' (~2.3k). MOSTLY THROUGH-HOLE ('Plugin,P=7.5mm' packages) — the smd flag marks the exceptions; expect smd=0/NULL to dominate. Safety-rated X/Y caps are NOT here — see cap_safety.",
+  "category_match": {
+    "category": "Capacitors",
+    "subcategory": "^Film Capacitors$|Polypropylene Film Capacitors"
+  },
+  "columns": [
+    {"name": "capacitance_f", "parse": "capacitance", "range": "max",
+     "attrs": ["Capacitance"]},
+    {"name": "voltage_v", "parse": "voltage", "range": "max",
+     "attrs": ["Voltage Rated", "Voltage Rating", "Rated Voltage", "Voltage - Rated"]},
+    {"name": "tolerance_frac", "parse": "percent", "range": "max",
+     "attrs": ["Tolerance", "Capacitance Tolerance"]},
+
+    "__comment_dielectric__: 'Metallized Polyester' vs 'Metallized Polypropylene' —",
+    "  polypropylene is the one for high-dV/dt snubber/resonant duty; filter with",
+    "  --where \"dielectric ~ polyprop\" (the CBB bucket is polypropylene by name",
+    "  even when this attr is absent).",
+    {"name": "dielectric", "parse": "text",
+     "attrs": ["Dielectric Material", "Dielectric"]},
+
+    {"name": "smd",
+     "flag": ["\\bSMD\\b", "\\bSMT\\b", "Surface[- ]?Mount", "贴片"],
+     "flag_false": ["插件", "\\bPlugin\\b", "Plug[- ]?in", "\\bDIP\\b", "Through[- ]?Hole", "\\bTHT\\b", "Radial"],
+     "from_description": true,
+     "attrs": ["Mounting Type", "mounting type", "Mounting Style"]}
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "name": "memory",
+  "display": "Memory ICs (NOR/NAND flash, EEPROM, FRAM, SRAM, SDRAM, ROM)",
+
+  "__comment_why__": "Added 2026-07-07 for avionics data/config/logging storage. ONE recipe for all memory types: there is no 'Memory Type' attribute in the data, but the derived table's common `subcategory` column is filterable, so route by --where \"subcategory ~ NOR\" / \"~ EEPROM\" / \"~ FRAM\" / \"~ SRAM\" / \"~ NAND\" / \"~ SDRAM\". Category is anchored to ^Memory$ so SD-card CONNECTORS and FIFO logic parts can't leak in.",
+  "category_match": {
+    "category": "^Memory$",
+    "subcategory": "NOR FLASH|NAND FLASH|EEPROM|FRAM|^SRAM$|SDRAM|Non-Volatile Memory|^FLASH$"
+  },
+  "columns": [
+    "__comment_size__: 'Memory Size' ('64Kbit', '128Mbit') → BITS via the dedicated",
+    "  memsize parser kind (binary 1024 prefixes; 'B'/'Byte' = x8). Filter examples:",
+    "  --where \"size_bits >= 128Mbit\", or a bare number of bits.",
+    {"name": "size_bits", "parse": "memsize", "range": "max",
+     "attrs": ["Memory Size", "Memory Capacity", "Capacity", "Density"]},
+
+    "__comment_interface__: 'SPI', 'I2C', 'QSPI', 'Parallel', 'Microwire'… filter",
+    "  with --where \"interface ~ spi\" (contains-match also catches 'QSPI/SPI').",
+    {"name": "interface", "parse": "text",
+     "attrs": ["Interface Type", "Interface", "Bus Type"]},
+
+    {"name": "vcc_v", "parse": "voltage", "range": "both",
+     "attrs": ["Supply Voltage", "Voltage - Supply", "Vcc"]},
+
+    {"name": "clock_hz", "parse": "frequency", "range": "max",
+     "attrs": ["Clock Frequency (fc)", "Clock Frequency", "Speed", "Max Clock Frequency"]},
+
+    "__comment_endurance__: '1,000,000 Times' → 1e6 (commas handled). EEPROM/FRAM",
+    "  differentiator — FRAM is ~1e12+, worth checking when logging frequently.",
+    {"name": "endurance_cycles", "parse": "number", "range": "max",
+     "attrs": ["Write Cycle Endurance", "Endurance", "Write Cycles"]},
+
+    "__comment_twc__: the bare 'Write Cycle Time' alias substring-matches every",
+    "  paren variant in the data: '(Tw)', '(tWC)', '(TWC)', no-space '(Tw)'.",
+    {"name": "write_cycle_s", "parse": "time", "range": "max",
+     "attrs": ["Write Cycle Time"]}
+  ]
+}

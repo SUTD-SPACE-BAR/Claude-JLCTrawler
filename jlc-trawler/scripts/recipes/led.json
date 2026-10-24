@@ -1,0 +1,24 @@
+{
+  "name": "led",
+  "display": "SMD indicator LEDs",
+  "category_match": {
+    "category": "Optocoupler|Optoelectronics|LED",
+    "subcategory": "Light Emitting Diodes|LED Indication"
+  },
+  "columns": [
+    "__comment_color__: 'Illumination Color' (231/500) is a real exact key and must sit",
+    "  BEFORE the generic 'Color' substring alias — otherwise the substring pass can",
+    "  grab 'Lens Color' ('Colorless Transparent Lens') and report lens junk as the",
+    "  emitted color. 'Lens Color' stays last as a genuine fallback.",
+    {"name": "color", "parse": "text",
+     "attrs": ["Emitted Color", "Illumination Color", "Color", "Lens Color"]},
+    {"name": "vf_v", "parse": "voltage", "range": "max",
+     "attrs": ["Forward Voltage", "Voltage - Forward", "Vf"]},
+    {"name": "if_a", "parse": "current", "range": "max",
+     "attrs": ["Forward Current", "Current - Forward", "If"]},
+    {"name": "wavelength_m", "parse": "number", "range": "max",
+     "attrs": ["Dominant Wavelength", "Wavelength", "Peak Wavelength"]},
+    {"name": "luminous_mcd", "parse": "number", "range": "max",
+     "attrs": ["Luminous Intensity", "Millicandela Rating", "Brightness"]}
+  ]
+}

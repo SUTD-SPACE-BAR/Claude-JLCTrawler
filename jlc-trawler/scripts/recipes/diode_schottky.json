@@ -1,0 +1,25 @@
+{
+  "name": "diode_schottky",
+  "display": "Schottky barrier diodes",
+  "category_match": {
+    "category": "Diodes",
+    "subcategory": "Schottky"
+  },
+  "columns": [
+    {"name": "vr_v", "parse": "voltage", "range": "max",
+     "attrs": ["Reverse Voltage", "Voltage - DC Reverse", "Vr", "DC Reverse Voltage"]},
+    "__comment_if__: the DOMINANT real key is plain 'Rectified Current' (313/500 in the",
+    "  raw-attrs sample, 2026-07-06); 'Average Rectified Current (Io)' and 'Current -",
+    "  Rectified' are minor variants. The old bare 'Io'/'If' aliases were SUBSTRING",
+    "  TRAPS and are deliberately gone: 'io' matched 'D-io-de Configuration' (returning",
+    "  text junk) and 'if' matched 'Rect-if-ied'/'(Vf@If)'. Never re-add 1-2 letter",
+    "  aliases to any recipe.",
+    {"name": "if_a", "parse": "current", "range": "max",
+     "attrs": ["Rectified Current", "Average Rectified Current", "Current - Rectified",
+               "Current - Average", "Forward Current"]},
+    {"name": "vf_v", "parse": "voltage", "range": "max",
+     "attrs": ["Forward Voltage", "Voltage - Forward", "Vf"]},
+    {"name": "ir_a", "parse": "current", "range": "max",
+     "attrs": ["Reverse Leakage Current", "Current - Reverse Leakage", "Ir"]}
+  ]
+}

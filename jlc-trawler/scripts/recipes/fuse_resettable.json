@@ -1,0 +1,23 @@
+{
+  "name": "fuse_resettable",
+  "display": "Resettable PTC fuses (polyfuses)",
+
+  "__comment_why__": "Added 2026-07-15 (Teensy 4.1 compute module review): needed a hold-current parametric search for USB VBUS input protection. Buckets: 'Resettable Fuses' under both 'Circuit Protection' and 'TVS/Fuse/Board Level Protection' namings, ~3.7k parts. Sample coverage: Hold Current 82%, Trip Current 82%, Operating Voltage 80%.",
+  "category_match": {
+    "subcategory": "Resettable Fuses"
+  },
+  "columns": [
+    {"name": "hold_current_a", "parse": "current", "range": "max",
+     "attrs": ["Hold Current", "Current - Hold (Ih)"]},
+    {"name": "trip_current_a", "parse": "current", "range": "max",
+     "attrs": ["Trip Current", "Current - Trip (It)"]},
+    {"name": "voltage_v", "parse": "voltage", "range": "max",
+     "attrs": ["Operating Voltage (Max)", "Voltage - Max", "Voltage Rating"]},
+    {"name": "current_max_a", "parse": "current", "range": "max",
+     "attrs": ["Current Rating (Max)", "Current - Max"]},
+    {"name": "trip_time_s", "parse": "number", "range": "max",
+     "attrs": ["Maximum Time to Trip", "Time to Trip(Max)"]},
+    {"name": "r_initial_ohm", "parse": "resistance", "range": "min",
+     "attrs": ["Resistance - Initial (Ri) (Min)", "Resistance @ 25℃"]}
+  ]
+}

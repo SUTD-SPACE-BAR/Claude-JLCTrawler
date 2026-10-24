@@ -1,0 +1,39 @@
+{
+  "name": "inductor_power",
+  "display": "Power inductors (incl. shielded flag, saturation/rated current, DCR)",
+  "category_match": {
+    "category": "Inductors|Coils|Chokes",
+    "subcategory": "Power Inductors"
+  },
+  "columns": [
+    {"name": "inductance_h", "parse": "inductance", "range": "max",
+     "attrs": ["Inductance", "Inductance (Value)"]},
+    {"name": "rated_current_a", "parse": "current", "range": "max",
+     "attrs": ["Rated Current", "Rated Current (Ir)", "Current Rating", "Current - Rated",
+               "Saturation Current (Isat)"]},
+    {"name": "sat_current_a", "parse": "current", "range": "max",
+     "attrs": ["Saturation Current (Isat)", "Saturation Current", "Current - Saturation", "Isat"]},
+    {"name": "dcr_ohm", "parse": "resistance", "range": "max",
+     "attrs": ["DC Resistance", "DC Resistance (DCR)", "DCR", "DCR (Max)", "Resistance - DCR"]},
+
+    "__comment_shielded__: LCSC exposes NO parametric shielding attribute, so this",
+    "  flag is scavenged from the description text (from_description=true). The truthy",
+    "  pattern (?<!un)shielded matches 'shielded'/'semi-shielded' but skips 'unshielded';",
+    "  flag_false lists explicit negatives so silence stays NULL (unknown), not a false 0.",
+    "  Per design decision, semi-shielded counts as shielded=1.",
+    {"name": "shielded",
+     "flag": ["(?<!un)shielded", "semi[- ]?shield", "\\bmolded\\b", "magnetic(ally)?[- ]?shield"],
+     "flag_false": ["unshielded", "non[- ]?shielded", "un-shielded", "no shield"],
+     "from_description": true,
+     "attrs": ["Shielding", "Shielded", "Shield", "Construction", "Type"]},
+
+    {"name": "tolerance_frac", "parse": "percent", "range": "max",
+     "attrs": ["Tolerance", "Inductance Tolerance"]},
+    "__comment_srf__: GROUND TRUTH (raw-attrs 'Power Inductors' --grep freq, 2026-07-06):",
+    "  ZERO frequency-related attribute keys exist in the CDFER snapshot for power",
+    "  inductors. 0% coverage is GENUINE — do not spend time on these aliases again.",
+    {"name": "srf_hz", "parse": "frequency", "range": "min",
+     "attrs": ["Self Resonant Frequency", "SRF", "Frequency - Self Resonant",
+               "Self Resonant Frequency (SRF)", "Self Resonant Frequency (Min)"]}
+  ]
+}

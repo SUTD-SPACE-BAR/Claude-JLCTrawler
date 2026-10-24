@@ -1,0 +1,46 @@
+{
+  "name": "tvs",
+  "display": "TVS / ESD protection diodes",
+  "category_match": {
+    "category": "Diodes|Circuit Protection",
+    "subcategory": "TVS|ESD|Transient Voltage Suppress"
+  },
+  "columns": [
+    {"name": "standoff_v", "parse": "voltage", "range": "max",
+     "attrs": ["Reverse Standoff Voltage", "Voltage - Reverse Standoff", "Vrwm", "Working Voltage"]},
+    {"name": "breakdown_v", "parse": "voltage", "range": "min",
+     "attrs": ["Breakdown Voltage", "Voltage - Breakdown", "Vbr"]},
+    {"name": "clamping_v", "parse": "voltage", "range": "max",
+     "attrs": ["Clamping Voltage", "Voltage - Clamping", "Vc"]},
+    {"name": "peak_power_w", "parse": "power", "range": "max",
+     "attrs": ["Peak Pulse Power", "Power - Peak Pulse", "Ppp", "Power Line Protection"]},
+
+    "__comment_ipp__: peak pulse current is the surge spec MOST TVS parts actually",
+    "  carry (~40% vs ~27% for Ppp): 'Peak Pulse Current (Ipp)@10/1000us' 197/500,",
+    "  'Peak Pulse Current (Ipp)' 71/500, plus 8/20us variants — all substring-matched",
+    "  by 'Peak Pulse Current'. NOTE the waveform (10/1000us vs 8/20us) is folded into",
+    "  one column; for a shortlist that distinction lives in the datasheet anyway.",
+    {"name": "ipp_a", "parse": "current", "range": "max",
+     "attrs": ["Peak Pulse Current", "Current - Peak Pulse", "Ipp"]},
+
+    "__comment_direction__: REWORKED 2026-07-07 — the old text 'direction' column was",
+    "  74% NULL and its populated values were junk: alias 'Unidirectional Channels'",
+    "  returned the CHANNEL COUNT ('1'), and the 'Type' fallback returned 'TVS'/'ESD'.",
+    "  Now a ternary flag: 1 = bidirectional, 0 = unidirectional, NULL = unknown.",
+    "  Sources: the 'Polarity'/'polarity' attrs ('Bi-Directional'/'Unidirectional')",
+    "  plus description scavenging (~7.6k of 15.5k parts state it in the text).",
+    "  Search: --where \"bidirectional = 1\" (bi) or \"bidirectional = 0\" (uni).",
+    {"name": "bidirectional",
+     "flag": ["bi-?directional"],
+     "flag_false": ["uni-?directional"],
+     "from_description": true,
+     "attrs": ["Polarity", "polarity", "Direction"]},
+
+    "__comment_n_channels__: 'Number of Lines' is the real numeric key (56/500).",
+    "  'Number of Channels' exists too but its values are WORDS ('Single channel')",
+    "  the number parser can't read, so it contributes ~nothing — kept for the",
+    "  occasional numeric value.",
+    {"name": "n_channels", "parse": "number", "range": "max",
+     "attrs": ["Number of Lines", "Number of Channels", "Channels"]}
+  ]
+}

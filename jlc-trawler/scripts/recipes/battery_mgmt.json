@@ -1,0 +1,48 @@
+{
+  "name": "battery_mgmt",
+  "display": "Battery management ICs (chargers, protection, gauges, balancers)",
+
+  "__comment_why__": "Added 2026-07-07 as Marcus starts charge/discharge/balance board design. EXPECTATION-SETTING (verified by raw-attrs probe): this is the WORST-documented bucket in the catalogue — ~57% of even top-stock parts (the TP4056-clone world) carry no parametric attributes at all, so ~20% coverage on typed columns is the genuine ceiling, not an alias bug. The recipe still shortlists honestly; the architecture choice (integrated charger vs AFE+MCU, protection topology) lives in datasheets.",
+  "category_match": {
+    "category": "Power",
+    "subcategory": "Battery Management"
+  },
+  "columns": [
+    "__comment_chip_type__: 'Battery Protection Chip' / charger / gauge etc — the",
+    "  routing column for this mixed bucket. Filter --where \"chip_type ~ protect\"",
+    "  or \"~ charg\" (loose contains-match).",
+    {"name": "chip_type", "parse": "text",
+     "attrs": ["The Chip Type", "Chip Type", "Type of the Power Management Chip"]},
+
+    {"name": "n_cells", "parse": "number", "range": "max",
+     "attrs": ["Number of Cells", "Cells"]},
+
+    "__comment_battery_type__: 'Lithium-ion/Polymer' vs LiFePO4 etc — chemistry",
+    "  determines charge voltage; filter --where \"battery_type ~ LiFePO4\" when",
+    "  building for that chemistry, and don't assume silence means Li-ion.",
+    {"name": "battery_type", "parse": "text",
+     "attrs": ["Type of Battery", "Battery Type", "Battery Chemistry"]},
+
+    {"name": "charge_current_a", "parse": "current", "range": "max",
+     "attrs": ["Maximum Charge Current", "Charge Current - Max", "Charge Current"]},
+
+    "__comment_vcharge__: charge termination voltage (4.2V/4.35V/3.65V-LiFePO4).",
+    "  Key exists on ~9% of parts with a real value — sparse but load-bearing.",
+    {"name": "charge_voltage_v", "parse": "voltage", "range": "max",
+     "attrs": ["Charging Saturation Voltage", "Charge Voltage", "Regulation Voltage"]},
+
+    {"name": "vin_v", "parse": "voltage", "range": "both",
+     "attrs": ["Supply Voltage", "Input Voltage", "Voltage - Supply"]},
+
+    "__comment_balance__: only a handful of parts carry 'Balance Current' — but for",
+    "  a balancing-BMS search a non-NULL here is a strong signal the part is an",
+    "  AFE/balancer, so the sparse column earns its keep.",
+    {"name": "balance_current_a", "parse": "current", "range": "max",
+     "attrs": ["Balance Current", "Balancing Current"]},
+
+    "__comment_interface__: 'I2C'/'SMBus' — presence usually means fuel gauge or",
+    "  smart AFE rather than a dumb protector.",
+    {"name": "interface", "parse": "text",
+     "attrs": ["Interface", "Interface Type"]}
+  ]
+}

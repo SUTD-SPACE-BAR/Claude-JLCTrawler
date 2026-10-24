@@ -1,0 +1,40 @@
+{
+  "name": "cap_electrolytic",
+  "display": "Aluminum electrolytic capacitors (SMD + leaded + horn-type + hybrid)",
+
+  "__comment_why__": "Added 2026-07-07 (power-electronics expansion): cheap bulk capacitance. Buckets: 'Aluminum Electrolytic Capacitors - SMD' (~5.1k), '- Leaded' (~7k), 'Horn-Type' (~0.6k), 'Hybrid' (~50). Like cap_polymer this MIXES mount styles, so the same smd ternary flag applies — filter smd = 1 for reflow-able parts. Ripple current here is specced @120Hz (mains-frequency convention), NOT @100kHz like polymers — don't compare the two columns across recipes directly.",
+  "category_match": {
+    "category": "Capacitors",
+    "subcategory": "Aluminum Electrolytic Capacitors|Horn-Type Electrolytic"
+  },
+  "columns": [
+    {"name": "capacitance_f", "parse": "capacitance", "range": "max",
+     "attrs": ["Capacitance"]},
+    {"name": "voltage_v", "parse": "voltage", "range": "max",
+     "attrs": ["Rated Voltage", "Voltage Rating", "Voltage Rated", "Voltage - Rated"]},
+    {"name": "tolerance_frac", "parse": "percent", "range": "max",
+     "attrs": ["Tolerance", "Capacitance Tolerance"]},
+
+    "__comment_ripple__: '40mA@120Hz' — condition dropped, so values are the 120Hz",
+    "  rating (multiply by the datasheet's frequency coefficient for 100kHz duty).",
+    {"name": "ripple_current_a", "parse": "current", "range": "max",
+     "attrs": ["Ripple Current", "Rated Ripple Current", "Rated Ripple Curren"]},
+
+    "__comment_esr__: key exists on ~56% of sampled parts but the value is usually",
+    "  literal '-' (skipped at merge) — expect LOW coverage, genuinely. Liquid",
+    "  electrolytics rarely publish ESR; use cap_polymer when ESR matters.",
+    {"name": "esr_ohm", "parse": "resistance", "range": "max",
+     "attrs": ["Equivalent Series Resistance(ESR)", "Equivalent Series Resistance (ESR)", "ESR"]},
+
+    {"name": "lifetime_h", "parse": "number", "range": "max",
+     "attrs": ["Lifetime @ Temp", "Lifetime", "Load Life", "Life"]},
+
+    "__comment_smd__: same bilingual mount-marker situation as cap_polymer — the",
+    "  builder scavenges description+package for '插件'(THT)/'SMD'.",
+    {"name": "smd",
+     "flag": ["\\bSMD\\b", "\\bSMT\\b", "Surface[- ]?Mount", "贴片"],
+     "flag_false": ["插件", "\\bPlugin\\b", "Plug[- ]?in", "\\bDIP\\b", "Through[- ]?Hole", "\\bTHT\\b", "Radial", "Horn"],
+     "from_description": true,
+     "attrs": ["Mounting Type", "mounting type", "Mounting Style"]}
+  ]
+}

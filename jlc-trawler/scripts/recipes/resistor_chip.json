@@ -1,0 +1,20 @@
+{
+  "name": "resistor_chip",
+  "display": "SMD chip resistors",
+  "category_match": {
+    "category": "Resistors",
+    "subcategory": "Chip Resistor"
+  },
+  "columns": [
+    {"name": "resistance_ohm", "parse": "resistance", "range": "max",
+     "attrs": ["Resistance"]},
+    {"name": "tolerance_frac", "parse": "percent", "range": "max",
+     "attrs": ["Tolerance", "Resistance Tolerance"]},
+    {"name": "power_w", "parse": "power", "range": "max",
+     "attrs": ["Power", "Power(Watts)", "Rated Power", "Power - Rated"]},
+    {"name": "tempco", "parse": "text",
+     "attrs": ["Temperature Coefficient", "TCR"]},
+    {"name": "voltage_v", "parse": "voltage", "range": "max",
+     "attrs": ["Overload Voltage", "Voltage - Working", "Rated Voltage", "Maximum Working Voltage"]}
+  ]
+}

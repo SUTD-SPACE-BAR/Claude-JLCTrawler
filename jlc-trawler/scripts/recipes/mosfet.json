@@ -1,0 +1,46 @@
+{
+  "name": "mosfet",
+  "display": "Discrete MOSFETs",
+  "category_match": {
+    "category": "Transistors|Thyristors",
+    "subcategory": "MOSFET"
+  },
+  "columns": [
+    {"name": "vds_v", "parse": "voltage", "range": "max",
+     "attrs": ["Drain-Source Voltage (Vdss)", "Drain Source Voltage", "Drain Source Voltage (Vdss)",
+               "Vdss", "Voltage - Drain Source", "Drain to Source Voltage (Vdss)",
+               "Drain to Source Voltage"]},
+    {"name": "id_a", "parse": "current", "range": "max",
+     "attrs": ["Continuous Drain Current (Id)", "Continuous Drain Current",
+               "Current - Continuous Drain (Id)", "Drain Current (Id)",
+               "Current - Continuous Drain", "Drain Current", "Id"]},
+    {"name": "rds_on_ohm", "parse": "resistance", "range": "max",
+     "attrs": ["Drain-Source On Resistance (RDS(on))", "Drain Source On Resistance (RDS(on)@Vgs,Id)",
+               "Drain Source On Resistance", "RDS(on)", "Rds On (Max) @ Id, Vgs", "On Resistance"]},
+    {"name": "vgs_th_v", "parse": "voltage", "range": "max",
+     "attrs": ["Gate Threshold Voltage (Vgs(th))", "Gate Threshold Voltage (Vgs(th)@Id)",
+               "Gate Threshold Voltage (Vgs(th) @ Id)", "Vgs(th)", "Gate Threshold Voltage"]},
+
+    "__comment_vgs_max__: absolute-max gate-source voltage. GROUND TRUTH (full scan of",
+    "  all 27,342 MOSFET parts in the CDFER snapshot, 2026-07-06): the ONLY matching key",
+    "  is 'Gate-Source Breakdown Voltage (V(BR)GSS)' and it exists on just 2 parts, so",
+    "  ~0% coverage is GENUINE — the data simply isn't in this snapshot. Do NOT spend",
+    "  time 'fixing' this column's aliases again; it may improve if the source is ever",
+    "  repointed to raw yaqwsx. Must NOT use bare 'Vgs' as an alias — it would",
+    "  substring-match the THRESHOLD key 'Gate Threshold Voltage (Vgs(th))' and pull",
+    "  the wrong number.",
+    {"name": "vgs_max_v", "parse": "voltage", "range": "max",
+     "attrs": ["Gate-Source Breakdown Voltage (Vgss)", "Gate-Source Breakdown Voltage (V(Br)Gss)",
+               "Gate-Source Voltage(Vgs)", "Gate-Source Voltage (Vgs)", "Gate-Source Voltage",
+               "Gate Source Voltage (Vgss)", "Gate Source Voltage", "Vgss",
+               "Voltage - Gate-Source", "Voltage - Gate Source"]},
+
+    {"name": "power_w", "parse": "power", "range": "max",
+     "attrs": ["Power Dissipation (Pd)", "Power Dissipation", "Power - Max", "Pd", "Total Power Dissipation"]},
+    {"name": "channel_type", "parse": "text",
+     "attrs": ["Type", "Channel Type", "Transistor Type", "FET Type", "Transistor Polarity"]},
+    {"name": "qg_c", "parse": "number", "range": "max",
+     "attrs": ["Total Gate Charge (Qg @ Vgs)", "Total Gate Charge (Qg@Vgs)", "Gate Charge (Qg)",
+               "Total Gate Charge", "Gate Charge", "Qg"]}
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "name": "cap_tantalum",
+  "display": "Tantalum capacitors (chip, MnO2 and polymer-tantalum mixed)",
+
+  "__comment_why__": "Added 2026-07-06 alongside cap_polymer. LCSC does not split MnO2 vs polymer-tantalum into separate buckets or attributes — the ESR value is the practical discriminator (polymer-Ta is typically tens of mΩ, MnO2 ohms). Attribute coverage here is excellent: ESR existed on 459/500 sampled parts. Packages are EIA case codes ('CASE-D-7343-31(mm)') which packages.py parses to real mm.",
+  "category_match": {
+    "category": "Capacitors",
+    "subcategory": "Tantalum Capacitors"
+  },
+  "columns": [
+    {"name": "capacitance_f", "parse": "capacitance", "range": "max",
+     "attrs": ["Capacitance"]},
+    {"name": "voltage_v", "parse": "voltage", "range": "max",
+     "attrs": ["Rated Voltage", "Voltage Rating", "Voltage Rated", "Voltage - Rated"]},
+    {"name": "tolerance_frac", "parse": "percent", "range": "max",
+     "attrs": ["Tolerance", "Capacitance Tolerance"]},
+
+    "__comment_esr__: values like '3Ω@100kHz' / '100mΩ@100kHz'; frequency condition",
+    "  dropped by the parser (assume 100kHz). NOTE for derating lore: tantalum",
+    "  convention is to run at ≤50% of rated voltage — that judgment belongs in the",
+    "  search phase (Claude should filter voltage_v >= 2x the rail), not in the data.",
+    {"name": "esr_ohm", "parse": "resistance", "range": "max",
+     "attrs": ["Equivalent Series Resistance(ESR)", "Equivalent Series Resistance (ESR)", "ESR"]},
+
+    "__comment_ripple__: key exists on ~20% of parts but values are mostly literal",
+    "  '-' (skipped at merge), so expect low coverage — genuine, not an alias gap.",
+    {"name": "ripple_current_a", "parse": "current", "range": "max",
+     "attrs": ["Ripple Current", "Rated Ripple Current"]}
+  ]
+}

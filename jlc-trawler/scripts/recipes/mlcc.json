@@ -1,0 +1,19 @@
+{
+  "name": "mlcc",
+  "display": "Multilayer ceramic capacitors (SMD)",
+  "category_match": {
+    "category": "Capacitors",
+    "subcategory": "MLCC - SMD/SMT"
+  },
+  "__comment_category__": "Deliberately pinned to the exact 'Multilayer Ceramic Capacitors MLCC - SMD/SMT' bucket. The looser 'MLCC' regex also swept in 'MLCC - Leaded' (~431 through-hole parts) — assembly is SMT-only, so that was contamination.",
+  "columns": [
+    {"name": "capacitance_f", "parse": "capacitance", "range": "max",
+     "attrs": ["Capacitance"]},
+    {"name": "voltage_v", "parse": "voltage", "range": "max",
+     "attrs": ["Voltage Rated", "Rated Voltage", "Voltage - Rated", "Voltage"]},
+    {"name": "tolerance_frac", "parse": "percent", "range": "max",
+     "attrs": ["Tolerance", "Capacitance Tolerance"]},
+    {"name": "dielectric", "parse": "text",
+     "attrs": ["Temperature Coefficient", "Dielectric", "Characteristic"]}
+  ]
+}

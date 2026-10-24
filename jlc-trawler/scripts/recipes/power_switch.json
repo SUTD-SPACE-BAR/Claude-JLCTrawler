@@ -1,0 +1,38 @@
+{
+  "name": "power_switch",
+  "display": "Power distribution switches / load switches / eFuses",
+
+  "__comment_why__": "Added 2026-07-07 (PMIC expansion) — Marcus asked for eFuses specifically. NOTE: JLC's website 'Surge Protection Devices (SPDs)' bucket is only 27 in-stock parts in our snapshot; integrated eFuse/load-switch ICs live HERE, in 'Power Distribution Switches' (~1.5k parts across 5 bucket namings). Aliases verified against raw-attrs.",
+  "category_match": {
+    "category": "Power",
+    "subcategory": "Power Distribution Switches"
+  },
+  "columns": [
+    {"name": "vin_v", "parse": "voltage", "range": "both",
+     "attrs": ["Input Voltage", "Voltage - Supply", "Supply Voltage", "Voltage Rating"]},
+
+    "__comment_ilimit__: 'Output Current' is the switch's rated/limited output",
+    "  current — for eFuse-style parts this is the current limit. 263/500 coverage",
+    "  in the sample.",
+    {"name": "current_limit_a", "parse": "current", "range": "max",
+     "attrs": ["Output Current", "Current Limit", "Current - Output", "Rectified Current"]},
+
+    "__comment_ron__: the real key is the oddly-worded 'Resistor On-State'",
+    "  (249/500) — do not 'fix' it to a saner name, that's what LCSC calls it.",
+    {"name": "ron_ohm", "parse": "resistance", "range": "max",
+     "attrs": ["Resistor On-State", "RDS(on)", "On-Resistance", "On Resistance"]},
+
+    {"name": "n_outputs", "parse": "number", "range": "max",
+     "attrs": ["Number of Outputs", "Number of Channels"]},
+
+    "__comment_logic__: 'Active High' / 'Active Low' enable polarity.",
+    {"name": "control_logic", "parse": "text",
+     "attrs": ["Control Input Logic", "Enable Logic"]},
+
+    "__comment_type__: 'Load Switch' / 'Ideal Diode' / '限流开关' (= current-limit",
+    "  switch, Chinese) etc. Only ~12% populated — text-match loosely (~) and",
+    "  don't rely on it as a hard filter.",
+    {"name": "switch_type", "parse": "text",
+     "attrs": ["Switch Type", "Type of the Power Management Chip"]}
+  ]
+}

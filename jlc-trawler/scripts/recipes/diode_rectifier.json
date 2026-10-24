@@ -1,0 +1,40 @@
+{
+  "name": "diode_rectifier",
+  "display": "Rectifier/switching diodes (general purpose, switching, fast recovery, SBR, bridges)",
+
+  "__comment_why__": "Added 2026-07-07. ONE table for the non-Schottky, non-Zener diode families (~10k parts): general purpose, switching (1N4148 territory), fast-recovery/high-efficiency, super barrier rectifiers, and bridge rectifiers. Route between them with the filterable common column: --where \"subcategory ~ Switching\" / \"~ Fast\" / \"~ Bridge\" / \"~ General\". Schottky stays in its own diode_schottky recipe.",
+  "category_match": {
+    "category": "Diodes",
+    "subcategory": "Diodes - General Purpose|Switching Diode|Fast Recovery|High Effic Rectifier|Super Barrier Rectifier|Bridge Rectifiers"
+  },
+  "columns": [
+    {"name": "vr_v", "parse": "voltage", "range": "max",
+     "attrs": ["Reverse Voltage (Vr)", "Voltage - DC Reverse(Vr)", "Voltage - DC Reverse (Vr) (Max)",
+               "Reverse Voltage", "DC Reverse Voltage"]},
+
+    "__comment_if__: same 'Rectified Current' reality as the schottky recipe —",
+    "  and the same substring-trap lore: NO bare 'Io'/'If' aliases, ever.",
+    {"name": "if_a", "parse": "current", "range": "max",
+     "attrs": ["Rectified Current", "Average Rectified Current", "Current - Rectified",
+               "Current - Average", "Forward Current"]},
+
+    {"name": "vf_v", "parse": "voltage", "range": "max",
+     "attrs": ["Forward Voltage (Vf@If)", "Voltage - Forward(Vf@If)", "Forward Voltage",
+               "Voltage - Forward"]},
+    {"name": "ir_a", "parse": "current", "range": "max",
+     "attrs": ["Reverse Leakage Current", "Reverse Leakage Current (Ir)",
+               "Current - Reverse Leakage"]},
+
+    "__comment_trr__: reverse recovery time ('4ns') — THE spec that separates a",
+    "  freewheeling/PWM-node diode from a mains rectifier. 303/500 coverage in",
+    "  the sample; filter e.g. --where \"trr_s <= 50ns\" for fast recovery.",
+    {"name": "trr_s", "parse": "time", "range": "max",
+     "attrs": ["Reverse Recovery Time (trr)", "Reverse Recovery Time"]},
+
+    "__comment_config__: 'Independent Type' / dual common-cathode / 'Bridge' etc.",
+    {"name": "config", "parse": "text",
+     "attrs": ["Diode Configuration"]},
+    {"name": "power_w", "parse": "power", "range": "max",
+     "attrs": ["Power Dissipation", "Pd - Power Dissipation"]}
+  ]
+}

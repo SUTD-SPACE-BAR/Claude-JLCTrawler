@@ -1,0 +1,49 @@
+{
+  "name": "cap_polymer",
+  "display": "Polymer capacitors (polymer aluminum + solid polymer electrolytic)",
+
+  "__comment_why__": "Added 2026-07-06 for low-ESR bulk/output caps (e.g. buck converter output needing an ESR window) — the mlcc recipe can't serve that. Both LCSC polymer buckets behave identically for selection purposes, so one recipe covers them. All alias lists below come from a real raw-attrs sample of the buckets, not guesses.",
+  "category_match": {
+    "category": "Capacitors",
+    "subcategory": "Polymer Aluminum Capacitors|Solid Polymer Electrolytic Capacitor|^Solid Capacitors$"
+  },
+  "__comment_solid__": "'Solid Capacitors' (~1.1k, added 2026-07-07) is LCSC's bucket for motherboard-style solid polymer cans — same part family, same selection criteria, so it belongs here rather than in its own recipe.",
+  "columns": [
+    {"name": "capacitance_f", "parse": "capacitance", "range": "max",
+     "attrs": ["Capacitance"]},
+    {"name": "voltage_v", "parse": "voltage", "range": "max",
+     "attrs": ["Rated Voltage", "Voltage Rating", "Voltage Rated", "Voltage - Rated"]},
+    {"name": "tolerance_frac", "parse": "percent", "range": "max",
+     "attrs": ["Tolerance", "Capacitance Tolerance"]},
+
+    "__comment_esr__: the workhorse column — 287/500 sampled parts carry",
+    "  'Equivalent Series Resistance(ESR)' (no space before the paren) with values",
+    "  like '10mΩ@100kHz'; the parser keeps the resistance and drops the frequency",
+    "  condition. Assume 100kHz spec when comparing datasheets.",
+    {"name": "esr_ohm", "parse": "resistance", "range": "max",
+     "attrs": ["Equivalent Series Resistance(ESR)", "Equivalent Series Resistance (ESR)", "ESR"]},
+
+    "__comment_ripple__: 'Rated Ripple Curren' (sic — no trailing t) is a REAL typo",
+    "  in the LCSC data (11/500 parts). Keep the typo'd alias verbatim.",
+    {"name": "ripple_current_a", "parse": "current", "range": "max",
+     "attrs": ["Ripple Current", "Rated Ripple Current", "Rated Ripple Curren"]},
+
+    "__comment_lifetime__: values like '2000hrs@105℃' parse to hours (2000); the",
+    "  temperature condition is dropped, and it's nearly always 105℃ for polymers.",
+    {"name": "lifetime_h", "parse": "number", "range": "max",
+     "attrs": ["Lifetime @ Temp", "Lifetime", "Load Life", "Life"]},
+
+    "__comment_smd__: this bucket is MAJORITY through-hole (1540/2101 parts as of",
+    "  2026-07-06), so this flag is essential for an SMT-assembly workflow. GROUND",
+    "  TRUTH: the marker lives in the PACKAGE string and is usually CHINESE —",
+    "  '插件' = plug-in/THT, alongside English 'SMD'/'Plugin' in some records; the",
+    "  builder scavenges description+package for from_description flags. Filter",
+    "  --where \"smd = 1\" for reflow-able parts; smd=0 is explicit THT; NULL =",
+    "  text never said (rare here).",
+    {"name": "smd",
+     "flag": ["\\bSMD\\b", "\\bSMT\\b", "Surface[- ]?Mount", "贴片"],
+     "flag_false": ["插件", "\\bPlugin\\b", "Plug[- ]?in", "\\bDIP\\b", "Through[- ]?Hole", "\\bTHT\\b", "Radial"],
+     "from_description": true,
+     "attrs": ["Mounting Type", "mounting type", "Mounting Style"]}
+  ]
+}

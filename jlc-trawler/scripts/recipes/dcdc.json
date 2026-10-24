@@ -1,0 +1,33 @@
+{
+  "name": "dcdc",
+  "display": "DC-DC switching converters/regulators (integrated switch)",
+  "category_match": {
+    "category": "Power Management",
+    "subcategory": "DC-DC Converters|DC DC Converters|Switching Regulator"
+  },
+  "columns": [
+    {"name": "output_current_a", "parse": "current", "range": "max",
+     "attrs": ["Output Current", "Current - Output", "Current Output"]},
+    {"name": "vin_v", "parse": "voltage", "range": "both",
+     "attrs": ["Input Voltage", "Voltage - Input", "Voltage Input"]},
+    {"name": "vout_v", "parse": "voltage", "range": "both",
+     "attrs": ["Output Voltage", "Voltage - Output", "Voltage Output"]},
+    {"name": "fsw_hz", "parse": "frequency", "range": "max",
+     "attrs": ["Switching Frequency", "Frequency - Switching", "Operating Frequency"]},
+    {"name": "iq_a", "parse": "current", "range": "max",
+     "attrs": ["Quiescent Current (Iq)", "Quiescent Current", "Current - Quiescent", "Supply Current"]},
+    {"name": "topology", "parse": "text",
+     "attrs": ["Topology", "Type", "Function"]},
+
+    "__comment_sync__: the dominant real key is 'Synchronous Rectification' (349/500)",
+    "  whose values are plain 'Yes'/'No' — the old truthy pattern ['synchron'] never",
+    "  matched 'Yes', so every such part was wrongly recorded as sync_rect=0. Now",
+    "  ternary: 'Yes' or an affirmative '...synchronous...' phrase → 1; 'No' or",
+    "  'asynchronous'/'non-synchronous' → 0; Topology/Type text that never speaks to",
+    "  it → NULL (unknown), not false. The (?<!a)(?<!-) lookbehinds stop the truthy",
+    "  pass firing inside 'Asynchronous'/'Non-Synchronous'.",
+    {"name": "sync_rect", "flag": ["^yes\\b", "(?<!a)(?<!-)synchron"],
+     "flag_false": ["^no\\b", "asynchron", "-synchron", "non synchron"],
+     "attrs": ["Synchronous Rectification", "Synchronous Rectifier", "Synchronous", "Topology", "Type"]}
+  ]
+}

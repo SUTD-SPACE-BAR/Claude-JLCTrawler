@@ -1,0 +1,37 @@
+{
+  "name": "supervisor_reset",
+  "display": "Voltage supervisors / reset ICs (incl. watchdogs)",
+
+  "__comment_why__": "Added 2026-07-07 (PMIC expansion). Buckets: 'Monitors & Reset Circuits' (x3 namings) + 'Supervisor And Reset ICs' + 'Microprocessor & Microcontroller Supervisors' ≈ 2.6k in-stock parts. Aliases below verified against raw-attrs.",
+  "category_match": {
+    "category": "Power|Embedded",
+    "subcategory": "Monitors & Reset Circuits|Supervisor And Reset ICs|Microcontroller Supervisors"
+  },
+  "columns": [
+    {"name": "threshold_v", "parse": "voltage", "range": "max",
+     "attrs": ["Threshold Voltage", "Voltage Threshold", "Trip Point"]},
+
+    "__comment_timeout__: values like '140ms' → seconds via the 'time' parser kind.",
+    {"name": "reset_timeout_s", "parse": "time", "range": "max",
+     "attrs": ["Reset Timeout", "Reset Delay", "Delay Time"]},
+
+    {"name": "vin_v", "parse": "voltage", "range": "both",
+     "attrs": ["Input Voltage", "Voltage - Supply", "Supply Voltage"]},
+
+    "__comment_output__: 'Push-Pull' vs 'Open-Drain' — filter with e.g.",
+    "  --where \"output_type ~ drain\" when an open-drain RESET line is needed.",
+    {"name": "output_type", "parse": "text",
+     "attrs": ["Output Type", "output type"]},
+    {"name": "active_level", "parse": "text",
+     "attrs": ["Reset Active Level", "Reset", "Output Polarity"]},
+
+    "__comment_watchdog__: values are 'None'/'Standard'/'Windowed' etc — kept as",
+    "  TEXT (not a flag) so 'None' stays visible and windowed types are findable",
+    "  (--where \"watchdog ~ window\"). NULL just means the attr was absent.",
+    {"name": "watchdog", "parse": "text",
+     "attrs": ["Watchdog"]},
+
+    {"name": "n_monitored", "parse": "number", "range": "max",
+     "attrs": ["Number of Voltages Monitored", "Voltages Monitored"]}
+  ]
+}
