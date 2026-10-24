@@ -116,17 +116,20 @@ On 2026-09-14 upstream lost about 95% of its catalogue. As of 2026-10-24 it
 hasn't recovered: [yaqwsx/jlcparts#159](https://github.com/yaqwsx/jlcparts/issues/159)
 and [yaqwsx/jlcparts#164](https://github.com/yaqwsx/jlcparts/issues/164) are
 open and the fix [yaqwsx/jlcparts#165](https://github.com/yaqwsx/jlcparts/pull/165)
-is unmerged. The skill refuses a partial download rather than use it. Until
-upstream recovers, a new user has two routes:
+is unmerged. The skill refuses a partial download rather than use it. On
+2026-10-24 upstream had 76% of the parts back, short of the 90% the skill
+requires.
 
-| Route | Size | What works |
+Until upstream recovers, the data is attached to this repo's
+[`data-2026-09-14` release](https://github.com/SUTD-SPACE-BAR/Claude-JLCTrawler/releases/tag/data-2026-09-14),
+and Claude downloads it from there. You choose one of two options:
+
+| Option | Size | What works |
 |---|---|---|
-| Copy a teammate's search tables (`trawl.sqlite3`) | 472 MB | Every search |
-| Download upstream's last good copy (jlcparts commit `75daa67`) and import it | 681 MB download, needs 7-Zip, about 7.5 GB free while importing | Every search, plus rebuilding tables and adding new categories |
+| Search tables only (`trawl.sqlite3`) | 472 MB | Every search |
+| Full data: upstream's last good cache, then imported | 681 MB download, needs 7-Zip, about 7.5 GB free while importing | Every search, plus rebuilding tables and adding new categories |
 
-Both hold data up to 2026-09-14. The `75daa67` copy could still be downloaded
-on 2026-10-24, but no branch points at it, so GitHub may delete it eventually.
-Marcus Quek keeps a copy.
+Both hold data up to 2026-09-14.
 
 ## For maintainers
 
